@@ -369,6 +369,189 @@ SELECT EMP_ID , EMP_NAME , DEPT_CODE
 FROM EMPLOYEE 
 WHERE DEPT_CODE NOT IN ('D5', 'D6', 'D9')
 	 OR DEPT_CODE IN NULL;
+	
+	
+/* LIKE : 비교하려는 값이 특정한 패턴을 만족 시키면
+ * 				조회하는 연산자
+ * 
+ * [작성법]
+ * WHERE 컬럼명 LIKE '패턴'
+ * 
+ * -LIKE에 사용되는 패턴(와일드카드)
+ * 
+ * '%' (포함)
+ * -> '%A'  : 문자열 앞부분은 어떤 문자든 포함할 수 있지만
+ * 					  마지막은 A로 끝나는 문자열  
+ * -> 'A%'  : A로 시작하는 문자열
+ * -> '%A%' : A가 포함된 문자열
+ * 
+ * '_' (글자 수)
+ * -> 'A___' : A로 시작하고 그 뒤에 3글자만 있는 문자열
+ * 	EX) ABDC (O), ABCDE(X)
+ * -> '___A' : 앞에 3글자가 존재하며 A로 끝나는 문자열
+ * */
+	
+-- EMPLOYEE 테이블에서 성이 '전' 씨인 사원의
+-- 사번, 이름 조회
+SELECT	EMP_ID "사번" , EMP_NAME"이름"
+FROM	EMPLOYEE
+WHERE	EMP_NAME LIKE '전%';
+
+-- 이름이 '수'로 끝나는 사원의 사번, 이름
+SELECT 	EMP_ID "사번", EMP_NAME "이름"
+FROM		EMPLOYEE
+WHERE		EMP_NAME LIKE '%수';
+
+-- 이름이 '하'가 포함된 사원의 사번, 이름
+SELECT	EMP_ID "사번", EMP_NAME "이름"
+FROM		EMPLOYEE
+WHERE		EMP_NAME LIKE '%하%';
+
+-- 전화번호가 010으로 시작하는 사원의
+-- 이름, 전화번호 조회
+
+SELECT	EMP_NAME , PHONE
+FROM		EMPLOYEE
+WHERE		PHONE LIKE '010%';
+
+-- EMPLOYEE 테이블에서 
+-- EMAIL의 ID의 글자수가 5글자인 사원의
+-- 사번, 이름, 이메일 조회
+SELECT	EMP_ID, EMP_NAME, EMAIL
+FROM		EMPLOYEE
+WHERE		EMAIL LIKE '_____@%';
+
+-- EMAIL의 아이디 중 '_' 앞쪽 글자 수가 3글자인 사원의
+-- 사번, 이름, 이메일 조회
+-- ESCAPE OPTION : 와일드 카드가 아닌 단순 문자열로 인식
+-- -> 지정된 특수문자 뒤 "한 글자"에만 적용
+-- 		-> WHERE 컬럼명 LIKE '__#_'; ESCAPE '#';
+SELECT	EMP_ID, EMP_NAME, EMAIL
+FROM		EMPLOYEE
+WHERE		EMAIL LIKE '___#_%' ESCAPE '#';
+
+----------------------------------------------
+/* ORDER BY 절
+ * 
+ * - SELECT 조회 결과 집합 ( RESULT SET )을
+ * 	 원하는 순서로 정렬할 떄 사용하는 구문
+ * 
+ * [작성법]
+ * 3. SELECT  컬럼명		(특정 컬럼 선택 조회)
+ * 1. FROM		테이블명 	(어떤 테이블에서)
+ * 2. WHERE 	조건식		(만족하는 조건 선택)
+ * 4. ORDER BY 
+ * 			컬럼명 | 별칭 | 컬럼순서(숫자)
+ * 			[ACS / DESC] (오름차순 / 내림차순]
+ * 			[NULLS FRIST / NULLS LAST] (NULL 위치를 지정)
+ * */
+
+-- 오름차순 (ASCENDING) : 점점 커지는 순서
+--	-> 1 -> 10, 가 -> 하 , A -> Z, 과거 -> 미래 
+-- 내림차순 (DESCENDING): 점점 작아지는 순서
+--  -> 10 -> 1, 하 -> 가, Z -> A, 미래 -> 과거
+-- EMPLOYEE 테이블에 존재하는 모든 사원을
+-- 이름 오름차순으로 조회
+SELECT EMP_NAME
+FROM EMPLOYEE
+ORDER BY EMP_NAME ASC;
+
+-- 모든사원의 이름, 급여를 내림차순으로 조회
+SELECT		EMP_NAME, SALARY
+FROM			EMPLOYEE
+ORDER BY	SALARY DESC;
+
+-- EMPLOYEE 테이블에서 
+-- 부서코드가 'D5' 'D6' 'D9'인 사원의
+-- 사번, 이름, 부서코드를 
+-- 부서코드 오름차순으로 조회
+SELECT		EMP_ID, EMP_NAME, DEPT_CODE
+FROM			EMPLOYEE
+WHERE			DEPT_CODE IN('D5', 'D6', 'D9')
+ORDER BY	DEPT_CODE ASC;
+
+/* 컬럼 순서를 이용해 정렬
+ * 급여가 400만 이상, 600만 이하인 사원의
+ * 사번, 이름, 급여를 급여 내림차순으로 조회
+ * */
+-- 먼저 해석된 SELECT절에 작성된 컬럼순서를 이용해
+-- 컬럼 지정 가능
+SELECT		EMP_ID, EMP_NAME, SALARY
+FROM			EMPLOYEE
+WHERE			SALARY BETWEEN 4000000 AND 6000000
+ORDER BY	3 DESC;
+
+/* 별칭을 이용해 정렬하기
+ * 직급 코드가 'J4', 'J5', 'J6'인 사원의
+ * 사번, 이름, 직급코드 조회
+ * 단, 이름 오름차순으로 조회
+ * */
+SELECT		EMP_ID "사번", EMP_NAME "이름", JOB_CODE "직급코드"
+FROM			EMPLOYEE
+WHERE			JOB_CODE IN ('J4', 'J5', 'J6')
+ORDER BY	"이름" ASC;
+
+/* ORDER BY 절에 수식 적용 가능
+ * 모든 사원의 이름, 연봉을
+ * 연봉 내림차순으로 조회
+ * */
+SELECT		EMP_NAME "이름", SALARY*12 "연봉"
+FROM			EMPLOYEE
+ORDER BY  연봉 DESC;
+
+/* SELECT 절에 작성되지 않은 컬럼을 이용해서 정렬하기
+ * 모든 사원의 사번, 이름을
+ * 부서코드 오름차순으로 조회
+ * */
+SELECT		EMP_ID, EMP_NAME
+FROM			EMPLOYEE
+ORDER BY	DEPT_CODE ASC;
+
+/* NULLS FIRST / NULLS LAST */
+SELECT		EMP_ID, EMP_NAME, DEPT_CODE
+FROM			EMPLOYEE
+ORDER BY	DEPT_CODE ASC NULLS FIRST;
+
+-- 내림차순은 NULLS FIRST가 기본값
+SELECT		EMP_ID, EMP_NAME, DEPT_CODE
+FROM			EMPLOYEE
+ORDER BY	DEPT_CODE DESC NULLS LAST;
+
+/* 정렬 기준 중첩 작성 */
+
+-- EMPLOYEE 테이블에서
+-- 이름, 부서코드, 급여를
+-- 부서코드 오름차순, 급여 내림차순으로 정렬
+-- 같은 부서코드 끼리 정렬 후 급여 내림차순으 조회
+SELECT		EMP_NAME"이름", DEPT_CODE"부서코드", SALARY"급여"
+FROM 			EMPLOYEE
+ORDER BY	DEPT_CODE ASC, SALARY DESC;
+
+-- 이름, 부서코드, 직급코드를
+-- 부서 오름차순, 직급코드 내림차순, 이름 오름차순
+SELECT		EMP_NAME "이름", DEPT_CODE "부서코드", JOB_CODE "직급코드"
+FROM			EMPLOYEE
+ORDER BY	부서코드 ASC, 직급코드 DESC, 이름 ASC;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
